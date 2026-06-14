@@ -3,7 +3,7 @@ let currentUser = null;
 let currentActiveSection = 'section-fields';
 
 // Eseguiamo il codice all'avvio
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   initNavigation();
   checkAuth();
   setupEventListeners();
@@ -19,44 +19,44 @@ async function checkAuth() {
   try {
     const res = await fetch('/api/whoami');
     const data = await res.json();
-    
+
     const navProfile = document.getElementById('btn-nav-profile');
     const btnCreateTournament = document.getElementById('btn-show-create-tournament');
-    
+
     if (data.loggedIn) {
       currentUser = data.user;
-      
+
       // Barra di navigazione per utenti loggati
       navProfile.classList.remove('hidden');
       if (btnCreateTournament) btnCreateTournament.classList.remove('hidden');
-      
+
       document.getElementById('auth-header-container').innerHTML = `
         <span style="font-size: 0.9rem; margin-right: 5px;">Utente: <strong>${currentUser.name}</strong></span>
         <button class="btn btn-secondary btn-sm" id="btn-header-logout">Esci</button>
       `;
-      
+
       document.getElementById('btn-header-logout').addEventListener('click', logout);
-      
+
       // Popola dati profilo
       document.getElementById('profile-user-fullname').innerText = `${currentUser.name} ${currentUser.surname}`;
       document.getElementById('profile-user-username').innerText = `@${currentUser.username}`;
-      
+
       renderProfileBookings(data.bookings || []);
       loadUserTournamentsInProfile();
     } else {
       currentUser = null;
       navProfile.classList.add('hidden');
       if (btnCreateTournament) btnCreateTournament.classList.add('hidden');
-      
+
       document.getElementById('auth-header-container').innerHTML = `
         <button class="btn btn-secondary btn-sm" id="btn-header-login">Accedi</button>
         <button class="btn btn-primary btn-sm" id="btn-header-signup">Registrati</button>
       `;
-      
-      document.getElementById('btn-header-login').addEventListener('click', function() {
+
+      document.getElementById('btn-header-login').addEventListener('click', function () {
         showSection('section-login');
       });
-      document.getElementById('btn-header-signup').addEventListener('click', function() {
+      document.getElementById('btn-header-signup').addEventListener('click', function () {
         showSection('section-signup');
       });
     }
@@ -65,7 +65,7 @@ async function checkAuth() {
   }
 }
 
-// Esegue il logout
+
 async function logout() {
   try {
     const res = await fetch('/api/auth/signout', { method: 'POST' });
@@ -81,7 +81,6 @@ async function logout() {
   }
 }
 
-// --- NAVIGAZIONE SPA ---
 
 function initNavigation() {
   const navMap = {
@@ -93,24 +92,23 @@ function initNavigation() {
     'btn-header-signup': 'section-signup'
   };
 
-  Object.keys(navMap).forEach(function(btnId) {
+  Object.keys(navMap).forEach(function (btnId) {
     const btn = document.getElementById(btnId);
     if (btn) {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', function () {
         showSection(navMap[btnId]);
       });
     }
   });
 
-  // Click sul logo ricarica la pagina iniziale dei campi
-  document.getElementById('nav-logo').addEventListener('click', function() {
+  document.getElementById('nav-logo').addEventListener('click', function () {
     showSection('section-fields');
   });
 }
 
 function showSection(sectionId) {
   const sections = document.querySelectorAll('.spa-section');
-  sections.forEach(function(sec) {
+  sections.forEach(function (sec) {
     sec.classList.remove('active');
   });
 
@@ -121,7 +119,7 @@ function showSection(sectionId) {
   }
 
   const navButtons = document.querySelectorAll('.nav-btn');
-  navButtons.forEach(function(btn) {
+  navButtons.forEach(function (btn) {
     btn.classList.remove('active');
   });
 
@@ -152,95 +150,91 @@ function showSection(sectionId) {
   }
 }
 
-// --- IMPOSTAZIONE EVENTI ---
 
 function setupEventListeners() {
   document.getElementById('login-form').addEventListener('submit', handleLogin);
-  document.getElementById('link-go-to-signup').addEventListener('click', function(e) {
+  document.getElementById('link-go-to-signup').addEventListener('click', function (e) {
     e.preventDefault();
     showSection('section-signup');
   });
 
   document.getElementById('signup-form').addEventListener('submit', handleSignup);
-  document.getElementById('link-go-to-login').addEventListener('click', function(e) {
+  document.getElementById('link-go-to-login').addEventListener('click', function (e) {
     e.preventDefault();
     showSection('section-login');
   });
 
-  // Ricerca Campi
-  document.getElementById('btn-search-fields').addEventListener('click', function() {
+
+
+  document.getElementById('btn-search-fields').addEventListener('click', function () {
     const q = document.getElementById('search-fields-input').value;
     loadFields(q);
   });
-  document.getElementById('search-fields-input').addEventListener('keypress', function(e) {
+  document.getElementById('search-fields-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
       loadFields(this.value);
     }
   });
 
-  // Back Campi
-  document.getElementById('btn-back-fields').addEventListener('click', function() {
+  document.getElementById('btn-back-fields').addEventListener('click', function () {
     document.getElementById('field-detail-container').classList.add('hidden');
     document.getElementById('fields-grid-container').classList.remove('hidden');
   });
 
-  // Ricerca Tornei
-  document.getElementById('btn-search-tournaments').addEventListener('click', function() {
+  document.getElementById('btn-search-tournaments').addEventListener('click', function () {
     const q = document.getElementById('search-tournaments-input').value;
     loadTournaments(q);
   });
-  document.getElementById('search-tournaments-input').addEventListener('keypress', function(e) {
+  document.getElementById('search-tournaments-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
       loadTournaments(this.value);
     }
   });
 
-  // Form Creazione Torneo
-  document.getElementById('btn-show-create-tournament').addEventListener('click', function() {
+  document.getElementById('btn-show-create-tournament').addEventListener('click', function () {
     document.getElementById('create-tournament-form-container').classList.remove('hidden');
     document.getElementById('tournaments-grid-container').classList.add('hidden');
   });
 
-  document.getElementById('btn-cancel-create-tournament').addEventListener('click', function() {
+  document.getElementById('btn-cancel-create-tournament').addEventListener('click', function () {
     document.getElementById('create-tournament-form-container').classList.add('hidden');
     document.getElementById('tournaments-grid-container').classList.remove('hidden');
   });
 
   document.getElementById('create-tournament-form').addEventListener('submit', handleCreateTournament);
 
-  // Back Tornei
-  document.getElementById('btn-back-tournaments').addEventListener('click', function() {
+  document.getElementById('btn-back-tournaments').addEventListener('click', function () {
     document.getElementById('tournament-detail-container').classList.add('hidden');
     document.getElementById('tournaments-grid-container').classList.remove('hidden');
   });
 
-  // Iscrizione Squadra
+
   document.getElementById('add-team-form').addEventListener('submit', handleAddTeam);
 
-  // Modali
-  document.getElementById('btn-close-result-modal').addEventListener('click', function() {
+
+  document.getElementById('btn-close-result-modal').addEventListener('click', function () {
     document.getElementById('match-result-modal').classList.add('hidden');
   });
   document.getElementById('match-result-form').addEventListener('submit', handleSaveMatchResult);
 
-  document.getElementById('btn-close-player-modal').addEventListener('click', function() {
+  document.getElementById('btn-close-player-modal').addEventListener('click', function () {
     document.getElementById('add-player-modal').classList.add('hidden');
   });
   document.getElementById('add-player-form').addEventListener('submit', handleAddPlayer);
 
-  // Ricerca Utenti
-  document.getElementById('btn-search-users').addEventListener('click', function() {
+
+  document.getElementById('btn-search-users').addEventListener('click', function () {
     const q = document.getElementById('search-users-input').value;
     loadUsers(q);
   });
-  document.getElementById('search-users-input').addEventListener('keypress', function(e) {
+  document.getElementById('search-users-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
       loadUsers(this.value);
     }
   });
 
-  // Back Utenti
-  document.getElementById('btn-back-users').addEventListener('click', function() {
+
+  document.getElementById('btn-back-users').addEventListener('click', function () {
     document.getElementById('user-detail-container').classList.add('hidden');
     document.getElementById('users-grid-container').classList.remove('hidden');
   });
@@ -248,9 +242,7 @@ function setupEventListeners() {
   document.getElementById('btn-profile-logout').addEventListener('click', logout);
 }
 
-// --- FUNZIONALITA MODULI ---
 
-// Login
 async function handleLogin(e) {
   e.preventDefault();
   const username = document.getElementById('login-username-input').value;
@@ -263,7 +255,7 @@ async function handleLogin(e) {
       body: JSON.stringify({ username: username, password: password })
     });
     const data = await res.json();
-    
+
     if (res.ok) {
       alert(data.message);
       document.getElementById('login-form').reset();
@@ -278,7 +270,7 @@ async function handleLogin(e) {
   }
 }
 
-// Registrazione
+
 async function handleSignup(e) {
   e.preventDefault();
   const username = document.getElementById('signup-username-input').value;
@@ -307,9 +299,8 @@ async function handleSignup(e) {
   }
 }
 
-// --- GESTIONE CAMPI ---
 
-// Carica lista campi
+
 async function loadFields(q = '') {
   try {
     const url = q ? `/api/fields?q=${encodeURIComponent(q)}` : '/api/fields';
@@ -324,10 +315,10 @@ async function loadFields(q = '') {
       return;
     }
 
-    fields.forEach(function(field) {
+    fields.forEach(function (field) {
       const card = document.createElement('div');
       card.className = 'item-card';
-      
+
       let sportLabel = field.sport === 'football' ? 'Calcio' : (field.sport === 'volleyball' ? 'Pallavolo' : 'Basket');
 
       card.innerHTML = `
@@ -348,7 +339,6 @@ async function loadFields(q = '') {
   }
 }
 
-// Dettagli campo sportivo e slot orari
 async function showFieldDetail(fieldId) {
   try {
     const res = await fetch(`/api/fields/${fieldId}`);
@@ -371,7 +361,7 @@ async function showFieldDetail(fieldId) {
 
     const newDateInput = dateInput.cloneNode(true);
     dateInput.parentNode.replaceChild(newDateInput, dateInput);
-    newDateInput.addEventListener('change', function() {
+    newDateInput.addEventListener('change', function () {
       loadFieldSlots(fieldId, newDateInput.value);
     });
 
@@ -381,11 +371,11 @@ async function showFieldDetail(fieldId) {
   }
 }
 
-// Carica slot liberi o occupati per data
+
 async function loadFieldSlots(fieldId, date) {
   const loader = document.getElementById('slots-loading-message');
   const container = document.getElementById('slots-grid-container');
-  
+
   loader.classList.remove('hidden');
   container.innerHTML = '';
 
@@ -394,7 +384,7 @@ async function loadFieldSlots(fieldId, date) {
     const slots = await res.json();
     loader.classList.add('hidden');
 
-    slots.forEach(function(slotInfo) {
+    slots.forEach(function (slotInfo) {
       const slotCard = document.createElement('div');
       slotCard.className = 'slot-card';
 
@@ -428,7 +418,7 @@ async function loadFieldSlots(fieldId, date) {
   }
 }
 
-// Effettua prenotazione
+
 async function bookSlot(fieldId, slot, date) {
   try {
     const res = await fetch(`/api/fields/${fieldId}/bookings`, {
@@ -449,7 +439,7 @@ async function bookSlot(fieldId, slot, date) {
   }
 }
 
-// Cancella prenotazione
+
 async function cancelBooking(fieldId, bookingId, date) {
   if (!confirm('Annullare la prenotazione?')) return;
   try {
@@ -463,7 +453,7 @@ async function cancelBooking(fieldId, bookingId, date) {
       if (fieldId) {
         loadFieldSlots(fieldId, date);
       } else {
-        checkAuth(); // Aggiorna Mio Profilo
+        checkAuth();
       }
     } else {
       alert(data.error || 'Errore cancellazione');
@@ -473,9 +463,7 @@ async function cancelBooking(fieldId, bookingId, date) {
   }
 }
 
-// --- GESTIONE TORNEI ---
 
-// Carica lista tornei
 async function loadTournaments(q = '') {
   try {
     const url = q ? `/api/tournaments?q=${encodeURIComponent(q)}` : '/api/tournaments';
@@ -490,7 +478,7 @@ async function loadTournaments(q = '') {
       return;
     }
 
-    tournaments.forEach(function(t) {
+    tournaments.forEach(function (t) {
       const card = document.createElement('div');
       card.className = 'item-card';
 
@@ -516,7 +504,7 @@ async function loadTournaments(q = '') {
   }
 }
 
-// Crea torneo
+
 async function handleCreateTournament(e) {
   e.preventDefault();
   const name = document.getElementById('tournament-name-input').value;
@@ -546,7 +534,7 @@ async function handleCreateTournament(e) {
   }
 }
 
-// Dettagli del torneo (classifica, iscrizioni squadre, calendario)
+
 async function showTournamentDetail(tournamentId) {
   try {
     const res = await fetch(`/api/tournaments/${tournamentId}`);
@@ -566,13 +554,13 @@ async function showTournamentDetail(tournamentId) {
 
     const isCreator = currentUser && tournament.creator._id === currentUser.id;
     const controls = document.getElementById('tournament-creator-controls');
-    
+
     if (isCreator) {
       controls.classList.remove('hidden');
       const btnDelete = document.getElementById('btn-delete-tournament');
       const newBtnDelete = btnDelete.cloneNode(true);
       btnDelete.parentNode.replaceChild(newBtnDelete, btnDelete);
-      newBtnDelete.addEventListener('click', function() {
+      newBtnDelete.addEventListener('click', function () {
         deleteTournament(tournamentId);
       });
     } else {
@@ -595,7 +583,7 @@ async function showTournamentDetail(tournamentId) {
 
     if (isCreator && !tournament.scheduleGenerated && tournament.teams.length === tournament.maxTeams) {
       newBtnGenerate.classList.remove('hidden');
-      newBtnGenerate.addEventListener('click', function() {
+      newBtnGenerate.addEventListener('click', function () {
         generateTournamentSchedule(tournamentId);
       });
     } else {
@@ -610,7 +598,7 @@ async function showTournamentDetail(tournamentId) {
   }
 }
 
-// Elimina torneo
+
 async function deleteTournament(id) {
   if (!confirm('Eliminare questo torneo?')) return;
   try {
@@ -627,7 +615,7 @@ async function deleteTournament(id) {
   }
 }
 
-// Aggiunge una squadra
+
 async function handleAddTeam(e) {
   e.preventDefault();
   const tournamentId = this.getAttribute('data-tournament-id');
@@ -654,7 +642,7 @@ async function handleAddTeam(e) {
   }
 }
 
-// Disegna squadre iscritte e permette inserimento giocatori
+
 function renderTournamentTeams(tournament, isCreator) {
   const container = document.getElementById('tournament-teams-list-container');
   container.innerHTML = '';
@@ -664,7 +652,7 @@ function renderTournamentTeams(tournament, isCreator) {
     return;
   }
 
-  tournament.teams.forEach(function(team) {
+  tournament.teams.forEach(function (team) {
     const teamDiv = document.createElement('div');
     teamDiv.className = 'team-item';
 
@@ -672,13 +660,13 @@ function renderTournamentTeams(tournament, isCreator) {
     if (team.players.length === 0) {
       playersHtml = '<li class="info-message" style="padding: 0;">Nessun giocatore registrato.</li>';
     } else {
-      team.players.forEach(function(p) {
+      team.players.forEach(function (p) {
         const num = p.jerseyNumber ? `[#${p.jerseyNumber}] ` : '';
         playersHtml += `<li>${num}${p.name} ${p.surname}</li>`;
       });
     }
 
-    const addPlayerBtn = isCreator 
+    const addPlayerBtn = isCreator
       ? `<button class="btn btn-secondary btn-sm" onclick="openAddPlayerModal('${tournament._id}', '${team._id}', '${team.name}')">+ Giocatore</button>`
       : '';
 
@@ -702,7 +690,7 @@ function openAddPlayerModal(tournamentId, teamId, teamName) {
   document.getElementById('add-player-modal').classList.remove('hidden');
 }
 
-// Aggiunge giocatore
+
 async function handleAddPlayer(e) {
   e.preventDefault();
   const tournamentId = this.getAttribute('data-tournament-id');
@@ -738,7 +726,7 @@ async function handleAddPlayer(e) {
   }
 }
 
-// Genera calendario incontri
+
 async function generateTournamentSchedule(tournamentId) {
   try {
     const res = await fetch(`/api/tournaments/${tournamentId}/matches/generate`, { method: 'POST' });
@@ -754,7 +742,7 @@ async function generateTournamentSchedule(tournamentId) {
   }
 }
 
-// Carica classifica
+
 async function loadTournamentStandings(tournamentId) {
   try {
     const res = await fetch(`/api/tournaments/${tournamentId}/standings`);
@@ -768,7 +756,7 @@ async function loadTournamentStandings(tournamentId) {
       return;
     }
 
-    standings.forEach(function(item, index) {
+    standings.forEach(function (item, index) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="font-weight: bold;">${index + 1}</td>
@@ -786,7 +774,7 @@ async function loadTournamentStandings(tournamentId) {
   }
 }
 
-// Carica incontri torneo
+
 async function loadTournamentMatches(tournamentId, isCreator) {
   const container = document.getElementById('tournament-matches-container');
   container.innerHTML = '';
@@ -802,7 +790,7 @@ async function loadTournamentMatches(tournamentId, isCreator) {
 
     const now = new Date();
 
-    matches.forEach(function(match) {
+    matches.forEach(function (match) {
       const matchDiv = document.createElement('div');
       matchDiv.className = 'match-item';
 
@@ -854,7 +842,7 @@ function openMatchResultModal(matchId, teamA, teamB) {
   document.getElementById('match-result-modal').classList.remove('hidden');
 }
 
-// Inserisce risultato match
+
 async function handleSaveMatchResult(e) {
   e.preventDefault();
   const matchId = document.getElementById('modal-match-id-input').value;
@@ -881,9 +869,7 @@ async function handleSaveMatchResult(e) {
   }
 }
 
-// --- GESTIONE UTENTI ---
 
-// Carica lista utenti
 async function loadUsers(q = '') {
   try {
     const url = q ? `/api/users?q=${encodeURIComponent(q)}` : '/api/users';
@@ -898,7 +884,7 @@ async function loadUsers(q = '') {
       return;
     }
 
-    users.forEach(function(user) {
+    users.forEach(function (user) {
       const card = document.createElement('div');
       card.className = 'item-card';
 
@@ -918,7 +904,7 @@ async function loadUsers(q = '') {
   }
 }
 
-// Mostra dettagli utente e suoi tornei
+
 async function showUserDetail(userId) {
   try {
     const res = await fetch(`/api/users/${userId}`);
@@ -938,7 +924,7 @@ async function showUserDetail(userId) {
       return;
     }
 
-    data.tournaments.forEach(function(t) {
+    data.tournaments.forEach(function (t) {
       const card = document.createElement('div');
       card.className = 'item-card';
       let sportLabel = t.sport === 'football' ? 'Calcio' : (t.sport === 'volleyball' ? 'Pallavolo' : 'Basket');
@@ -966,14 +952,14 @@ function goToTournamentFromUser(tournamentId) {
   showTournamentDetail(tournamentId);
 }
 
-// --- MIO PROFILO ---
 
-// Disegna prenotazioni utente correntemente loggato
+
+
 function renderProfileBookings(bookings) {
   const tbody = document.getElementById('profile-bookings-tbody');
   tbody.innerHTML = '';
 
-  const activeBookings = bookings.filter(function(b) {
+  const activeBookings = bookings.filter(function (b) {
     const startTime = b.slot.split('-')[0];
     const bookingDate = new Date(`${b.date}T${startTime}:00`);
     return bookingDate >= new Date();
@@ -984,7 +970,7 @@ function renderProfileBookings(bookings) {
     return;
   }
 
-  activeBookings.forEach(function(b) {
+  activeBookings.forEach(function (b) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${b.field.name}</td>
@@ -998,7 +984,7 @@ function renderProfileBookings(bookings) {
   });
 }
 
-// Carica tornei creati dall'utente loggato nel suo profilo
+
 async function loadUserTournamentsInProfile() {
   const container = document.getElementById('profile-tournaments-grid-container');
   container.innerHTML = '';
@@ -1012,7 +998,7 @@ async function loadUserTournamentsInProfile() {
       return;
     }
 
-    data.tournaments.forEach(function(t) {
+    data.tournaments.forEach(function (t) {
       const card = document.createElement('div');
       card.className = 'item-card';
       let sportLabel = t.sport === 'football' ? 'Calcio' : (t.sport === 'volleyball' ? 'Pallavolo' : 'Basket');

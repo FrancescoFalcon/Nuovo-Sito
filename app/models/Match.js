@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Schema per le partite del torneo
 const matchSchema = new mongoose.Schema({
   tournament: {
     type: mongoose.Schema.Types.ObjectId,
@@ -8,7 +7,7 @@ const matchSchema = new mongoose.Schema({
     required: true
   },
   teamA: {
-    type: String, // Usiamo il nome come stringa per semplicità
+    type: String,
     required: true
   },
   teamB: {
@@ -21,7 +20,7 @@ const matchSchema = new mongoose.Schema({
   },
   field: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Field' // Opzionale, può essere assegnato a un campo reale
+    ref: 'Field'
   },
   status: {
     type: String,

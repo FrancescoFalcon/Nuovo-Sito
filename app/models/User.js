@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Schema per gli utenti registrati
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -23,7 +22,7 @@ const userSchema = new mongoose.Schema({
     trim: true
   }
 }, {
-  timestamps: true // Aggiunge createdAt e updatedAt automaticamente
+  timestamps: true // Aggiunge createdAt e updatedAt
 });
 
 module.exports = mongoose.model('User', userSchema);

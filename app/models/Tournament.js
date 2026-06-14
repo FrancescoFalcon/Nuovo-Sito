@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-
-// Schema annidato per i giocatori delle squadre
 const playerSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -17,7 +15,6 @@ const playerSchema = new mongoose.Schema({
   }
 });
 
-// Schema annidato per le squadre
 const teamSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -27,7 +24,6 @@ const teamSchema = new mongoose.Schema({
   players: [playerSchema]
 });
 
-// Schema per i tornei
 const tournamentSchema = new mongoose.Schema({
   name: {
     type: String,
