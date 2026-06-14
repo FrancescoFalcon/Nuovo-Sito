@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Piattaforma didattica per la prenotazione di campi sportivi e gestione di tornei amatoriali. Progetto di esame Programmazione Web.">
+  <title>Provolone Sports - Prenotazione Campi & Tornei</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Barra di navigazione principale -->
+  <header class="navbar navbar-expand bg-white border-bottom shadow-sm py-2 mb-4">
+    <div class="container">
+      <span class="navbar-brand fw-bold fs-4" id="nav-logo" style="cursor: pointer;">Provolone Sports</span>
+      <nav class="nav nav-pills gap-1 ms-auto me-3">
+        <button class="nav-link nav-btn active" id="btn-nav-fields">Campi</button>
+        <button class="nav-link nav-btn" id="btn-nav-tournaments">Tornei</button>
+        <button class="nav-link nav-btn" id="btn-nav-users">Utenti</button>
+        <button class="nav-link nav-btn hidden" id="btn-nav-profile">Mio Profilo</button>
+      </nav>
+      <div class="auth-status d-flex gap-2" id="auth-header-container">
+        <button class="btn btn-outline-secondary btn-sm" id="btn-header-login">Accedi</button>
+        <button class="btn btn-primary btn-sm" id="btn-header-signup">Registrati</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenitore principale per le sezioni della SPA -->
+  <main class="container mb-5">
+
+    <!-- SEZIONE 1: CAMPI SPORTIVI (LISTA & DETTAGLI) - ATTIVA DI DEFAULT -->
+    <section id="section-fields" class="spa-section active">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <h2 class="mb-0">Campi Sportivi</h2>
+        <div class="input-group" style="max-width: 400px;">
+          <input type="text" id="search-fields-input" class="form-control" placeholder="Cerca campo per nome, sport o indirizzo...">
+          <button class="btn btn-primary" id="btn-search-fields">Cerca</button>
+        </div>
+      </div>
+      
+      <!-- Lista dei campi -->
+      <div class="row g-3" id="fields-grid-container"></div>
+
+      <!-- Area Dettaglio Campo -->
+      <div class="detail-container hidden" id="field-detail-container">
+        <button class="btn btn-link p-0 mb-3 text-decoration-none" id="btn-back-fields">← Torna alla lista dei campi</button>
+        <div class="card shadow-sm p-4 mb-4">
+          <div class="detail-header mb-4">
+            <span class="sport-badge mb-2" id="field-detail-sport"></span>
+            <h3 id="field-detail-name" class="fw-bold"></h3>
+            <p id="field-detail-address" class="text-muted"></p>
+          </div>
+          
+          <div class="slots-section">
+            <h5 class="fw-bold mb-3">Prenota uno slot orario</h5>
+            <div class="date-selector mb-3" style="max-width: 300px;">
+              <label for="booking-date-input" class="form-label">Seleziona data:</label>
+              <input type="date" class="form-control" id="booking-date-input">
+            </div>
+            <div id="slots-loading-message" class="info-message alert alert-info hidden py-2 px-3">Caricamento disponibilità...</div>
+            <div class="slots-grid row g-2" id="slots-grid-container"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE 2: TORNEI (LISTA, CREAZIONE & DETTAGLI) -->
+    <section id="section-tournaments" class="spa-section">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+          <h2 class="mb-0">Tornei Sportivi</h2>
+          <button class="btn btn-primary hidden" id="btn-show-create-tournament">Crea Torneo</button>
+        </div>
+        <div class="input-group" style="max-width: 400px;">
+          <input type="text" id="search-tournaments-input" class="form-control" placeholder="Cerca torneo per nome o sport...">
+          <button class="btn btn-primary" id="btn-search-tournaments">Cerca</button>
+        </div>
+      </div>
+
+      <!-- Modulo Creazione Torneo -->
+      <div class="card shadow-sm p-4 mb-4 hidden" id="create-tournament-form-container">
+        <h3 class="mb-3">Nuovo Torneo</h3>
+        <form id="create-tournament-form">
+          <div class="mb-3">
+            <label for="tournament-name-input" class="form-label">Nome del Torneo:</label>
+            <input type="text" class="form-control" id="tournament-name-input" required placeholder="Esempio: Torneo Calcio a 5">
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label for="tournament-sport-input" class="form-label">Sport:</label>
+              <select id="tournament-sport-input" class="form-select" required>
+                <option value="football">Calcio</option>
+                <option value="volleyball">Pallavolo</option>
+                <option value="basketball">Pallacanestro</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="tournament-maxteams-input" class="form-label">Max Squadre:</label>
+              <input type="number" class="form-control" id="tournament-maxteams-input" min="2" max="20" required placeholder="Es. 8">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="tournament-startdate-input" class="form-label">Data Inizio:</label>
+            <input type="date" class="form-control" id="tournament-startdate-input" required>
+          </div>
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="submit" class="btn btn-primary">Salva</button>
+            <button type="button" class="btn btn-secondary" id="btn-cancel-create-tournament">Annulla</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Lista dei tornei -->
+      <div class="row g-3" id="tournaments-grid-container"></div>
+
+      <!-- Dettaglio Torneo -->
+      <div class="detail-container hidden" id="tournament-detail-container">
+        <button class="btn btn-link p-0 mb-3 text-decoration-none" id="btn-back-tournaments">← Torna alla lista dei tornei</button>
+        
+        <div class="row g-4">
+          <!-- Colonna Sinistra: Info Torneo e Squadre -->
+          <div class="col-md-5">
+            <div class="card shadow-sm p-4 mb-3">
+              <div class="mb-3">
+                <span class="sport-badge" id="tournament-detail-sport"></span>
+              </div>
+              <h3 id="tournament-detail-name" class="fw-bold mb-3"></h3>
+              <p class="mb-1">Creato da: <strong id="tournament-detail-creator"></strong></p>
+              <p class="mb-1">Data inizio: <strong id="tournament-detail-startdate"></strong></p>
+              <p class="mb-3">Squadre iscritte: <strong id="tournament-detail-teams-count"></strong></p>
+              
+              <div class="creator-actions-row hidden" id="tournament-creator-controls">
+                <button class="btn btn-danger btn-sm" id="btn-delete-tournament">Elimina Torneo</button>
+              </div>
+            </div>
+
+            <!-- Modulo Iscrizione Squadra -->
+            <div class="card shadow-sm p-4 mb-3 hidden" id="add-team-form-container">
+              <h5 class="fw-bold mb-3">Iscrivi Squadra</h5>
+              <form id="add-team-form">
+                <div class="input-group">
+                  <input type="text" class="form-control form-control-sm" id="team-name-input" placeholder="Nome della Squadra" required>
+                  <button type="submit" class="btn btn-primary btn-sm">Iscrivi</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Squadre Iscritte -->
+            <div class="card shadow-sm p-4 mb-3">
+              <h5 class="fw-bold mb-3">Squadre Iscritte</h5>
+              <div id="tournament-teams-list-container"></div>
+            </div>
+          </div>
+
+          <!-- Colonna Destra: Classifica e Calendario -->
+          <div class="col-md-7">
+            <!-- Classifica -->
+            <div class="card shadow-sm p-4 mb-3">
+              <h5 class="fw-bold mb-3">Classifica</h5>
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered table-sm align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 50px;">Pos</th>
+                      <th>Squadra</th>
+                      <th>Punti</th>
+                      <th>G</th>
+                      <th>Fatti</th>
+                      <th>Subiti</th>
+                      <th>Diff</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tournament-standings-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Calendario -->
+            <div class="card shadow-sm p-4 mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Incontri Torneo</h5>
+                <button class="btn btn-success btn-sm hidden" id="btn-generate-schedule">Genera Calendario</button>
+              </div>
+              <div id="tournament-matches-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modale Risultato -->
+      <div class="modal hidden" id="match-result-modal">
+        <div class="card shadow p-4 bg-white" style="width: 90%; max-width: 400px; border-radius: 8px;">
+          <h3 class="fw-bold mb-2">Risultato Incontro</h3>
+          <p id="modal-match-teams-label" class="text-muted small mb-3"></p>
+          <form id="match-result-form">
+            <input type="hidden" id="modal-match-id-input">
+            <div class="d-flex align-items-center justify-content-center gap-3 my-4">
+              <div class="text-center">
+                <label id="modal-team-a-label" for="score-a-input" class="form-label d-block text-truncate fw-semibold" style="max-width: 120px;"></label>
+                <input type="number" id="score-a-input" class="form-control text-center fs-4 fw-bold" min="0" required style="width: 70px;">
+              </div>
+              <div class="fw-bold text-muted fs-5">VS</div>
+              <div class="text-center">
+                <label id="modal-team-b-label" for="score-b-input" class="form-label d-block text-truncate fw-semibold" style="max-width: 120px;"></label>
+                <input type="number" id="score-b-input" class="form-control text-center fs-4 fw-bold" min="0" required style="width: 70px;">
+              </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="submit" class="btn btn-primary">Salva</button>
+              <button type="button" class="btn btn-secondary" id="btn-close-result-modal">Chiudi</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modale Giocatore -->
+      <div class="modal hidden" id="add-player-modal">
+        <div class="card shadow p-4 bg-white" style="width: 90%; max-width: 400px; border-radius: 8px;">
+          <h3 class="fw-bold mb-2">Aggiungi Giocatore</h3>
+          <p class="text-muted small mb-3">Squadra: <strong id="modal-player-team-name"></strong></p>
+          <form id="add-player-form">
+            <input type="hidden" id="modal-player-team-id-input">
+            <div class="mb-3">
+              <label for="player-name-input" class="form-label">Nome:</label>
+              <input type="text" class="form-control" id="player-name-input" required>
+            </div>
+            <div class="mb-3">
+              <label for="player-surname-input" class="form-label">Cognome:</label>
+              <input type="text" class="form-control" id="player-surname-input" required>
+            </div>
+            <div class="mb-3">
+              <label for="player-jersey-input" class="form-label">Numero Maglia (Opzionale):</label>
+              <input type="number" class="form-control" id="player-jersey-input" min="1" max="99">
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="submit" class="btn btn-primary">Aggiungi</button>
+              <button type="button" class="btn btn-secondary" id="btn-close-player-modal">Chiudi</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE 3: UTENTI -->
+    <section id="section-users" class="spa-section">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <h2 class="mb-0">Utenti Registrati</h2>
+        <div class="input-group" style="max-width: 400px;">
+          <input type="text" id="search-users-input" class="form-control" placeholder="Cerca utente per username, nome o cognome...">
+          <button class="btn btn-primary" id="btn-search-users">Cerca</button>
+        </div>
+      </div>
+
+      <!-- Lista degli utenti -->
+      <div class="row g-3" id="users-grid-container"></div>
+
+      <!-- Dettaglio Utente -->
+      <div class="detail-container hidden" id="user-detail-container">
+        <button class="btn btn-link p-0 mb-3 text-decoration-none" id="btn-back-users">← Torna alla lista utenti</button>
+        <div class="card shadow-sm p-4">
+          <h3 id="user-detail-name" class="fw-bold"></h3>
+          <p class="text-muted">Username: <span id="user-detail-username" class="fw-semibold"></span></p>
+          
+          <div class="user-tournaments-section mt-4">
+            <h4 class="fw-bold mb-3">Tornei Organizzati</h4>
+            <div class="row g-3" id="user-tournaments-grid-container"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE 4: LOGIN -->
+    <section id="section-login" class="spa-section">
+      <div class="card shadow-sm p-4 mx-auto my-5 bg-white" style="max-width: 400px; border-radius: 8px;">
+        <h3 class="fw-bold text-center mb-3">Accedi</h3>
+        <form id="login-form">
+          <div class="mb-3">
+            <label for="login-username-input" class="form-label">Username:</label>
+            <input type="text" class="form-control" id="login-username-input" required>
+          </div>
+          <div class="mb-3">
+            <label for="login-password-input" class="form-label">Password:</label>
+            <input type="password" class="form-control" id="login-password-input" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Accedi</button>
+        </form>
+        <p class="text-center small mt-3 text-muted">Non hai un account? <a href="#" id="link-go-to-signup" class="text-decoration-none">Registrati</a></p>
+      </div>
+    </section>
+
+    <!-- SEZIONE 5: REGISTRAZIONE -->
+    <section id="section-signup" class="spa-section">
+      <div class="card shadow-sm p-4 mx-auto my-5 bg-white" style="max-width: 450px; border-radius: 8px;">
+        <h3 class="fw-bold text-center mb-3">Registrazione</h3>
+        <form id="signup-form">
+          <div class="mb-3">
+            <label for="signup-username-input" class="form-label">Username:</label>
+            <input type="text" class="form-control" id="signup-username-input" required>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label for="signup-name-input" class="form-label">Nome:</label>
+              <input type="text" class="form-control" id="signup-name-input" required>
+            </div>
+            <div class="col-md-6">
+              <label for="signup-surname-input" class="form-label">Cognome:</label>
+              <input type="text" class="form-control" id="signup-surname-input" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="signup-password-input" class="form-label">Password:</label>
+            <input type="password" class="form-control" id="signup-password-input" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Registrati</button>
+        </form>
+        <p class="text-center small mt-3 text-muted">Hai già un account? <a href="#" id="link-go-to-login" class="text-decoration-none">Accedi</a></p>
+      </div>
+    </section>
+
+    <!-- SEZIONE 6: PROFILO UTENTE -->
+    <section id="section-profile" class="spa-section">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card shadow-sm p-4 text-center">
+            <h3 id="profile-user-fullname" class="fw-bold mb-2"></h3>
+            <p id="profile-user-username" class="text-muted mb-4"></p>
+            <button class="btn btn-danger w-100" id="btn-profile-logout">Esci</button>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <!-- Prenotazioni Attive -->
+          <div class="card shadow-sm p-4 mb-4">
+            <h4 class="fw-bold mb-3">Le mie Prenotazioni Attive</h4>
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-sm align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Campo</th>
+                    <th>Data</th>
+                    <th>Slot</th>
+                    <th style="width: 100px;">Azione</th>
+                  </tr>
+                </thead>
+                <tbody id="profile-bookings-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tornei Organizzati -->
+          <div class="card shadow-sm p-4">
+            <h4 class="fw-bold mb-3">Tornei Organizzati</h4>
+            <div class="row g-3" id="profile-tournaments-grid-container"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Script JS Principale -->
+  <script src="script.js"></script>
+</body>
+</html>
