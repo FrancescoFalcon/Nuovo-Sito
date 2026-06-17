@@ -5,7 +5,9 @@ const Tournament = require('./models/Tournament');
 const Match = require('./models/Match');
 const User = require('./models/User');
 
-const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/provolone';
+const mongoHost = process.env.MONGODB_HOST || '127.0.0.1';
+const mongoDBName = process.env.MONGODB_DB || 'provolone';
+const mongoURI = process.env.MONGODB_URI || `mongodb://${mongoHost}:27017/${mongoDBName}`;
 
 async function seed() {
   try {

@@ -5,7 +5,8 @@ services:
     build: .
     command: nodemon --watch /usr/src/app -e js app.js
     environment:
-      MONGODB_URI: mongodb://mongo:27017/provolone
+      MONGODB_HOST: mongo
+      MONGODB_DB: ${MONGODB_DB:-provolone}
     ports:
       - "3000:3000"
     volumes:

@@ -12,23 +12,36 @@ const Booking = require('./models/Booking');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/provolone';
+const mongoHost = process.env.MONGODB_HOST || '127.0.0.1';
+const mongoDBName = process.env.MONGODB_DB || 'provolone';
+const mongoURI = process.env.MONGODB_URI || `mongodb://${mongoHost}:27017/${mongoDBName}`;
+const mongoRetryDelayMs = Number(process.env.MONGODB_RETRY_DELAY_MS || 2000);
 
 // Configurazione della connessione MongoDB
 async function bootstrap() {
-  try {
-    await mongoose.connect(mongoURI);
-    console.log('Connessione a MongoDB riuscita su:', mongoURI);
+  await waitForMongo();
 
-    // Eseguiamo il seed dei campi se la collezione è vuota
-    await seedFieldsIfNeeded();
+  // Eseguiamo il seed dei campi se la collezione è vuota
+  await seedFieldsIfNeeded();
 
-    app.listen(PORT, function() {
-      console.log(`Server in ascolto sulla porta ${PORT}`);
-    });
-  } catch (err) {
-    console.error('Errore di connessione a MongoDB:', err);
-    process.exitCode = 1;
+  app.listen(PORT, function() {
+    console.log(`Server in ascolto sulla porta ${PORT}`);
+  });
+}
+
+async function waitForMongo() {
+  while (true) {
+    try {
+      await mongoose.connect(mongoURI);
+      console.log('Connessione a MongoDB riuscita su:', mongoURI);
+      return;
+    } catch (err) {
+      console.error('MongoDB non ancora disponibile, nuovo tentativo tra', mongoRetryDelayMs, 'ms');
+      console.error(err.message);
+      await new Promise(function(resolve) {
+        setTimeout(resolve, mongoRetryDelayMs);
+      });
+    }
   }
 }
 
